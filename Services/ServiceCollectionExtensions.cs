@@ -9,6 +9,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IDateTimeService, DateTimeService>();
         services.AddSingleton<IEnvironmentReportService, EnvironmentReportService>();
+        services.AddSingleton<IAppVersionService, AppVersionService>();
+        services.AddSingleton<IRequestCounterService, RequestCounterService>();
         return services;
     }
 }

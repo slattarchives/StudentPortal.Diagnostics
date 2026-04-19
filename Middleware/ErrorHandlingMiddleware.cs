@@ -1,27 +1,28 @@
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+
 namespace StudentPortal.Diagnostics.Middleware;
 
 public class ErrorHandlingMiddleware
 {
     private readonly RequestDelegate _next;
-
-    public ErrorHandlingMiddleware(RequestDelegate next)
-    {
-        _next = next;
-    }
+    public ErrorHandlingMiddleware(RequestDelegate next) => _next = next;
 
     public async Task InvokeAsync(HttpContext context)
     {
-        // Выполняем следующую ветку pipeline
         await _next(context);
 
-        // Проверяем статус после обработки всеми последующими компонентами
-        if (context.Response.StatusCode == 403)
+        if (context.Response.HasStarted) return;
+
+        if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
         {
-            await context.Response.WriteAsync("\n🔍 [ErrorHandling] Доступ запрещён (403). Проверьте параметр token.");
+            context.Response.ContentType = "text/plain; charset=utf-8";
+            await context.Response.WriteAsync("[ErrorHandling] Доступ запрещён (403). Проверьте параметр token.");
         }
-        else if (context.Response.StatusCode == 404)
+        else if (context.Response.StatusCode == StatusCodes.Status404NotFound)
         {
-            await context.Response.WriteAsync("\n🔍 [ErrorHandling] Ресурс не найден (404).");
+            context.Response.ContentType = "text/plain; charset=utf-8";
+            await context.Response.WriteAsync("[ErrorHandling] Ресурс не найден (404).");
         }
     }
 }
